@@ -3,48 +3,68 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Calculadora de Drogas Vasoactivas / Sedantes</title>
+<title>Calculadora de Drogas</title>
 <style>
   :root{ --blue:#0d47a1;--blue-100:#e6f0fa;--text:#0b2239;--muted:#5b7186;--ok:#1565c0; }
   *{box-sizing:border-box}
   body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,'Noto Sans',sans-serif;color:var(--text);margin:0;background:#f7f9fc}
-  header{background:linear-gradient(180deg,#0d47a1,#1565c0);color:#fff;padding:16px 20px}
-  header h1{margin:0;font-size:20px;line-height:1.2}
+  header{background:linear-gradient(135deg,#0d47a1,#1976d2,#42a5f5);color:#fff;padding:24px 20px;text-align:center;box-shadow:0 12px 30px rgba(13,71,161,.25)}
+  header h1{margin:0;font-size:34px;line-height:1.1;letter-spacing:-0.01em;text-transform:uppercase}
+  header p.subtitle{margin:6px 0 0;font-size:16px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,.85)}
   main{max-width:1100px;margin:20px auto;padding:0 16px 32px}
   .grid{display:grid;gap:16px}
   @media(min-width:880px){.grid{grid-template-columns:1.1fr 1fr}}
-  .card{background:#fff;border:1px solid #d7e1ec;border-radius:14px;box-shadow:0 1px 2px rgba(16,24,40,.06);padding:16px}
-  .card h2{margin:0 0 8px 0;font-size:16px;color:#0b2239}
+  .card{background:#fff;border:1px solid #d7e1ec;border-radius:14px;box-shadow:0 6px 12px rgba(16,24,40,.04);padding:18px 20px}
+  .card h2{margin:0 0 8px 0;font-size:16px;color:#0b2239;display:flex;align-items:center;gap:8px}
+  .card h2::after{content:"";flex:1;height:1px;background:#e3edf7;margin-left:8px}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
   label{font-size:12px;color:#304b63;margin-bottom:4px;display:block}
-  input,select{width:100%;padding:10px;border:1px solid #cfd9e3;border-radius:10px;background:#fff;font-size:14px}
-  input:focus,select:focus{outline:2px solid #bdddff;border-color:#8ec2ff}
+  input,select{width:100%;padding:10px;border:1px solid #cfd9e3;border-radius:10px;background:#fff;font-size:14px;transition:border-color .2s,box-shadow .2s}
+  input:focus,select:focus{outline:2px solid #bdddff;border-color:#8ec2ff;box-shadow:0 0 0 3px rgba(141,200,255,.25)}
+  input.invalid,select.invalid{border-color:#d93025;box-shadow:0 0 0 2px rgba(217,48,37,.15)}
   .hint{font-size:12px;color:var(--muted)}
+  .hint.success{color:var(--blue);font-weight:600}
+  .hint.error{color:#d93025}
   .pill{display:inline-block;background:#e1f5fe;color:#0277bd;border-radius:999px;padding:2px 8px;font-weight:600;font-size:12px;margin-left:6px}
   .range{font-size:12px;color:#0b2239;background:#fffde7;border:1px solid #ffecb3;border-radius:8px;padding:6px 8px;display:inline-block}
   .muted{color:#5b7186}
   .hr{height:1px;background:#e6edf5;margin:8px 0}
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .note{font-size:10px;background:#f1f7ff;border:1px dashed #aac7ff;border-radius:8px;padding:8px}
-  .btn{padding:6px 10px;border:1px solid #cfd9e3;border-radius:999px;background:#fff;cursor:pointer}
+  .btn{padding:6px 12px;border:1px solid #cfd9e3;border-radius:999px;background:#fff;cursor:pointer;font-size:13px;transition:background .2s,border-color .2s,transform .1s}
+  .btn-sm{padding:4px 10px;font-size:12px}
   .btn:hover{background:#f1f7ff}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:linear-gradient(120deg,#1565c0,#1976d2);color:#fff;border-color:#1565c0;box-shadow:0 4px 10px rgba(21,101,192,.2)}
+  .btn-primary:hover{background:linear-gradient(120deg,#0d47a1,#1565c0)}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;align-items:center}
+  .status{font-size:13px;border-radius:10px;padding:10px 12px;margin:12px 0 0 0;background:#eef5ff;color:#0b2239;line-height:1.4;box-shadow:inset 0 0 0 1px #d1e3ff}
+  .status.status--warn{background:#fff4e6;color:#8a4b16;box-shadow:inset 0 0 0 1px #f7cda1}
+  .status.status--ok{background:#e6f7ef;color:#0f5132;box-shadow:inset 0 0 0 1px #b0e1c3}
+  .status.status--neutral{background:#f3f6fb;color:#44566c;box-shadow:inset 0 0 0 1px #d7e1ec}
+  .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:8px;border-radius:12px;border:1px solid #e1e9f2}
+  table{border-collapse:collapse;width:100%;min-width:520px}
+  th,td{padding:8px 12px;text-align:left;border-bottom:1px solid #e6edf5}
+  tr.header th{background:#f1f6ff;color:#0d47a1;font-size:12px;text-transform:uppercase;letter-spacing:0.04em}
+  #farmacos table{font-size:11px}
+  #farmacos td,#farmacos th{padding:8px 10px}
+  #farmacos tr:nth-child(even){background:#f9fbff}
+  @media(max-width:640px){.result{font-size:32px}}
   details.dev{margin-top:16px}
   details.dev summary{cursor:pointer;color:#0d47a1;font-weight:600}
   pre#testLog{background:#0b223910;color:#0b2239;padding:8px;border-radius:8px;overflow:auto}
-  /* Ajustes solicitados */
-  .result{font-size:40px;font-weight:800;margin:8px 0;color:var(--blue)}
-  #farmacos table{font-size:11px}
-  #farmacos td, #farmacos th{padding:3px}
-  #resumen table{font-size:11px}
-  .tag{font-weight:700}
+    /* Ajustes solicitados */
+    .result{font-size:40px;font-weight:800;margin:8px 0;color:var(--blue)}
+    .tag{font-weight:700}
   #presets h3{font-size:12px;margin:8px 0}
   #presetButtons .btn{font-size:12px;padding:4px 8px}
 </style>
 </head>
 <body>
 <header>
-  <h1>Calculadora de Drogas Vasoactivas / Inotrópicos / Vasodilatadores y Sedantes</h1>
+  <h1>Calculadora de Drogas</h1>
+  <p class="subtitle">Drogas vasoactivas, vasodilatadores y sedoanalgesia</p>
 </header>
 <main>
   <div class="grid">
@@ -75,6 +95,10 @@
           <div class="hint" id="doseHint"></div>
         </div>
       </div>
+      <div class="actions">
+        <button type="button" class="btn btn-sm" id="resetAll">Limpiar campos</button>
+        <span class="hint">Vuelve al estado inicial de la calculadora.</span>
+      </div>
     </section>
 
     <section class="card">
@@ -102,65 +126,54 @@
     </section>
   </div>
 
-  <section class="card" style="margin-top:16px">
-    <h2>3) Resultados</h2>
-    <div class="grid">
-      <div>
-        <div class="result"><span id="mlh">—</span> mL/h</div>
-        
-        <div class="row" style="margin-top:8px">
-          <div>
-            <label>Volumen en 24 h</label>
-            <div class="pill"><span id="vol24">—</span> mL/24h</div>
+    <section class="card" style="margin-top:16px">
+      <h2>3) Resultados</h2>
+      <div class="grid">
+        <div>
+          <div class="result"><span id="mlh">—</span> mL/h</div>
+          <p id="statusMessage" class="status status--neutral">Completa los datos para ver resultados.</p>
+
+          <div class="row" style="margin-top:8px">
+            <div>
+              <label>Volumen en 24 h</label>
+              <div class="pill"><span id="vol24">—</span> mL/24h</div>
+            </div>
+            <div>
+              <label>Fármacos necesarios (24 h)</label>
+              <div class="pill"><span id="vials24">—</span> ampollas/frasco</div>
+            </div>
           </div>
-          <div>
-            <label>Fármacos necesarios (24 h)</label>
-            <div class="pill"><span id="vials24">—</span> ampollas/frasco</div>
-          </div>
-        </div>
-        <div class="row" style="margin-top:8px">
-          <div>
-            <label>Bolsas/Preparaciones de esta dilución (24 h)</label>
-            <div class="pill"><span id="bags24">—</span> bolsas</div>
-          </div>
-          <div>
-            <label>Fármaco total usado (24 h)</label>
-            <div class="pill"><span id="mg24">—</span> mg</div>
+          <div class="row" style="margin-top:8px">
+            <div>
+              <label>Bolsas/Preparaciones de esta dilución (24 h)</label>
+              <div class="pill"><span id="bags24">—</span> bolsas</div>
+            </div>
+            <div>
+              <label>Fármaco total usado (24 h)</label>
+              <div class="pill"><span id="mg24">—</span> mg</div>
+            </div>
           </div>
         </div>
       </div>
-      <div id="resumen">
-        <table>
-          <tr class="header"><th colspan="2">Resumen (tabla base)</th></tr>
-          <tr><td class="tag">Fármaco</td><td id="t_drug">—</td></tr>
-          <tr><td class="tag">Dosis objetivo</td><td id="t_dose">—</td></tr>
-          <tr><td class="tag">Peso</td><td id="t_weight">—</td></tr>
-          <tr><td class="tag">Concentración</td><td id="t_conc">—</td></tr>
-          <tr><td class="tag">mL/h</td><td id="t_mlh">—</td></tr>
-          <tr><td class="tag">mL / 24 h</td><td id="t_vol24">—</td></tr>
-          <tr><td class="tag">mg / 24 h</td><td id="t_mg24">—</td></tr>
-          <tr><td class="tag">Ampollas / 24 h</td><td id="t_vials24">—</td></tr>
-          <tr><td class="tag">Bolsas / 24 h</td><td id="t_bags24">—</td></tr>
-        </table>
-        <div class="note" style="margin-top:8px">⚠️ Esta calculadora es una ayuda. Siempre confirma las dosis y preparaciones según protocolo local y doble verificación independiente.</div>
-      </div>
-    </div>
-  </section>
+      <div class="note" style="margin-top:16px">⚠️ Esta calculadora es una ayuda. Siempre confirma las dosis y preparaciones según protocolo local y doble verificación independiente. Resultados listos para revisión; utiliza estos resultados y valida con tu protocolo local.</div>
+    </section>
 
   <section class="card" id="farmacos" style="margin-top:16px">
     <h2>Fármacos disponibles</h2>
-    <table>
-      <tr class="header"><th>Fármaco</th><th>Presentación típica</th><th>Rango habitual</th><th>Unidad base</th></tr>
-      <tr><td>Noradrenalina</td><td>4 mg/ampolla</td><td>0,03 – 1 mcg/kg/min</td><td>mcg/kg/min</td></tr>
-      <tr><td>Adrenalina</td><td>1 mg/ampolla</td><td>0,03 – 1 mcg/kg/min</td><td>mcg/kg/min</td></tr>
-      <tr><td>Dobutamina</td><td>250 mg/ampolla</td><td>2 – 10 mcg/kg/min</td><td>mcg/kg/min</td></tr>
-      <tr><td>Dopamina</td><td>200 mg/ampolla</td><td>2 – 10 mcg/kg/min</td><td>mcg/kg/min</td></tr>
-      <tr><td>Nitroglicerina</td><td>50 mg/frasco</td><td>10 – 200 mcg/min (hasta 400 en crisis hipertensiva)</td><td>mcg/min</td></tr>
-      <tr><td>Propofol</td><td>1% 20 mL (≈10 mg/mL, 200 mg totales)</td><td>0,3 – 3 mg/kg/h</td><td>mg/kg/h</td></tr>
-      <tr><td>Midazolam</td><td>50 mg/ampolla</td><td>0,02 – 0,1 mg/kg/h</td><td>mg/kg/h</td></tr>
-      <tr><td>Fentanilo</td><td>0,5 mg/ampolla</td><td>1 – 3,6 mcg/kg/h</td><td>mcg/kg/h</td></tr>
-      <tr><td>Ketamina</td><td>500 mg/frasco</td><td>0,1 – 2 mg/kg/h</td><td>mg/kg/h</td></tr>
-    </table>
+    <div class="table-wrapper">
+      <table>
+        <tr class="header"><th>Fármaco</th><th>Presentación típica</th><th>Rango habitual</th><th>Unidad base</th></tr>
+        <tr><td>Noradrenalina</td><td>4 mg/ampolla</td><td>0,03 – 1 mcg/kg/min</td><td>mcg/kg/min</td></tr>
+        <tr><td>Adrenalina</td><td>1 mg/ampolla</td><td>0,03 – 1 mcg/kg/min</td><td>mcg/kg/min</td></tr>
+        <tr><td>Dobutamina</td><td>250 mg/ampolla</td><td>2 – 10 mcg/kg/min</td><td>mcg/kg/min</td></tr>
+        <tr><td>Dopamina</td><td>200 mg/ampolla</td><td>2 – 10 mcg/kg/min</td><td>mcg/kg/min</td></tr>
+        <tr><td>Nitroglicerina</td><td>50 mg/frasco</td><td>10 – 200 mcg/min (hasta 400 en crisis hipertensiva)</td><td>mcg/min</td></tr>
+        <tr><td>Propofol</td><td>1% 20 mL (≈10 mg/mL, 200 mg totales)</td><td>0,3 – 3 mg/kg/h</td><td>mg/kg/h</td></tr>
+        <tr><td>Midazolam</td><td>50 mg/ampolla</td><td>0,02 – 0,1 mg/kg/h</td><td>mg/kg/h</td></tr>
+        <tr><td>Fentanilo</td><td>0,5 mg/ampolla</td><td>1 – 3,6 mcg/kg/h</td><td>mcg/kg/h</td></tr>
+        <tr><td>Ketamina</td><td>500 mg/frasco</td><td>0,1 – 2 mg/kg/h</td><td>mg/kg/h</td></tr>
+      </table>
+    </div>
   </section>
 
   <details class="dev" closed>
@@ -238,6 +251,8 @@ const fmt = (x, d=2) => {
   return x.toFixed(d);
 };
 
+const capitalize = (txt='') => txt ? txt.charAt(0).toUpperCase() + txt.slice(1) : '';
+
 // --- DOM refs ---
 const drugSel = document.getElementById('drug');
 const doseUnitSel = document.getElementById('doseUnit');
@@ -261,22 +276,18 @@ const vials24 = document.getElementById('vials24');
 const bags24 = document.getElementById('bags24');
 const presetsDiv = document.getElementById('presets');
 const presetButtons = document.getElementById('presetButtons');
-
-// Tabla
-const t_drug = document.getElementById('t_drug');
-const t_dose = document.getElementById('t_dose');
-const t_weight = document.getElementById('t_weight');
-const t_conc = document.getElementById('t_conc');
-const t_mlh = document.getElementById('t_mlh');
-const t_vol24 = document.getElementById('t_vol24');
-const t_mg24 = document.getElementById('t_mg24');
-const t_vials24 = document.getElementById('t_vials24');
-const t_bags24 = document.getElementById('t_bags24');
+const statusMessage = document.getElementById('statusMessage');
+const resetBtn = document.getElementById('resetAll');
 
 // --- Seguridad: verificar existencia de elementos críticos ---
 const REQUIRED_IDS = {mixMgInp, mixMlInp, vialMgInp, drugSel, doseUnitSel, weightInp, doseInp};
 for (const [k,v] of Object.entries(REQUIRED_IDS)){
   if (!v){ console.error('Falta elemento en el DOM:', k); }
+}
+
+function markValidity(input, ok){
+  if(!input) return;
+  input.classList.toggle('invalid', !ok);
 }
 
 // Poblar fármacos
@@ -350,6 +361,68 @@ function getNumbers(){
 
 function recalc(){
   const {drug, weight, doseVal, doseUnit, mixMg, mixMl, vialMg} = getNumbers();
+  const weightRaw = weightInp?.value ?? '';
+  const doseRaw = doseInp?.value ?? '';
+  const mixMgRaw = mixMgInp?.value ?? '';
+  const mixMlRaw = mixMlInp?.value ?? '';
+  const vialMgRaw = vialMgInp?.value ?? '';
+  const hasAnyInput = [weightRaw, doseRaw, mixMgRaw, mixMlRaw].some(v=>v !== '');
+  const issues = [];
+
+  if (drug?.usesWeight){
+    if (weightRaw === ''){
+      if (hasAnyInput) issues.push('ingresa el peso del paciente');
+      markValidity(weightInp, true);
+    } else if (!isFinite(weight) || weight<=0){
+      issues.push('el peso debe ser mayor a 0');
+      markValidity(weightInp, false);
+    } else {
+      markValidity(weightInp, true);
+    }
+  } else {
+    markValidity(weightInp, true);
+  }
+
+  if (doseRaw === ''){
+    if (hasAnyInput) issues.push('indica la dosis objetivo');
+    markValidity(doseInp, true);
+  } else if (!isFinite(doseVal) || doseVal<=0){
+    issues.push('la dosis debe ser mayor a 0');
+    markValidity(doseInp, false);
+  } else {
+    markValidity(doseInp, true);
+  }
+
+  if (mixMgRaw === ''){
+    if (hasAnyInput) issues.push('define los mg totales de la mezcla');
+    markValidity(mixMgInp, true);
+  } else if (!isFinite(mixMg) || mixMg<=0){
+    issues.push('los mg totales deben ser mayores a 0');
+    markValidity(mixMgInp, false);
+  } else {
+    markValidity(mixMgInp, true);
+  }
+
+  if (mixMlRaw === ''){
+    if (hasAnyInput) issues.push('define el volumen total de la mezcla');
+    markValidity(mixMlInp, true);
+  } else if (!isFinite(mixMl) || mixMl<=0){
+    issues.push('el volumen total debe ser mayor a 0');
+    markValidity(mixMlInp, false);
+  } else {
+    markValidity(mixMlInp, true);
+  }
+
+  if (vialMgRaw !== ''){
+    if (!isFinite(vialMg) || vialMg<=0){
+      issues.push('el contenido por ampolla debe ser mayor a 0');
+      markValidity(vialMgInp, false);
+    } else {
+      markValidity(vialMgInp, true);
+    }
+  } else {
+    markValidity(vialMgInp, true);
+  }
 
   // Concentración solo en mcg/mL
   const conc_mg_ml = (isFinite(mixMg) && isFinite(mixMl) && mixMl>0) ? (mixMg / mixMl) : NaN;
@@ -396,15 +469,40 @@ function recalc(){
   vials24.textContent = isFinite(vials_24)? vials_24 : '—';
   bags24.textContent = isFinite(bags_24)? bags_24 : '—';
 
-  t_drug.textContent = drug? drug.name : '—';
-  t_dose.textContent = isFinite(doseVal)? `${doseVal} ${doseUnit}` : '—';
-  t_weight.textContent = (drug && drug.usesWeight)? (isFinite(weight)? `${weight} kg`:'—') : 'No aplica';
-  t_conc.textContent = isFinite(conc_mcg_ml)? `${fmt(conc_mcg_ml,0)} mcg/mL` : '—';
-  t_mlh.textContent = fmt(ml_per_h);
-  t_vol24.textContent = isFinite(vol_24) ? Math.round(vol_24) : '—';
-  t_mg24.textContent = isFinite(mg_24) ? Math.round(mg_24) : '—';
-  t_vials24.textContent = isFinite(vials_24)? vials_24 : '—';
-  t_bags24.textContent = isFinite(bags_24)? bags_24 : '—';
+  if (statusMessage){
+    let statusText = 'Completa los datos para ver resultados.';
+    let statusClass = 'status status--neutral';
+    if (issues.length){
+      const readable = issues.map(capitalize).join('. ') + '.';
+      statusText = `Falta información: ${readable}`;
+      statusClass = 'status status--warn';
+    } else if (isFinite(ml_per_h) && hasAnyInput){
+      statusText = 'Resultados listos para revisión clínica.';
+      statusClass = 'status status--ok';
+    } else if (hasAnyInput){
+      statusText = 'Completa los campos obligatorios para obtener un resultado.';
+      statusClass = 'status status--warn';
+    }
+    statusMessage.textContent = statusText;
+    statusMessage.className = statusClass;
+  }
+}
+
+function handleReset(){
+  if (drugSel){
+    drugSel.value = 'norepi';
+  }
+  if (doseInp) doseInp.value = '';
+  if (weightInp) weightInp.value = '';
+  if (mixMgInp) mixMgInp.value = '';
+  if (mixMlInp) mixMlInp.value = '';
+  onDrugChange();
+  const defaultDrug = DRUGS.find(d=>d.id===drugSel?.value);
+  if (vialMgInp && defaultDrug){
+    vialMgInp.value = defaultDrug.vialMg;
+  }
+  [doseInp, weightInp, mixMgInp, mixMlInp, vialMgInp].forEach(el=>markValidity(el, true));
+  recalc();
 }
 
 // Eventos (con guardas para evitar null)
@@ -413,6 +511,7 @@ function recalc(){
   .forEach(el=>{ el.addEventListener('input', recalc); el.addEventListener('change', recalc); });
 
 drugSel && drugSel.addEventListener('change', onDrugChange);
+resetBtn && resetBtn.addEventListener('click', handleReset);
 
 // Inicializar
 (function init(){
@@ -439,27 +538,27 @@ function runTests(){
 
   // TC1: Noradrenalina 8 mg/100 mL, 0.1 mcg/kg/min, 70 kg => 5.25 mL/h
   let r1 = calcMlphPure(0.1,'mcg/kg/min',70,8,100);
-  log('TC1 norepi => mL/h = '+r1.toFixed(2)+' (esperado ≈ 5.25)');
+  log('TC1 Noradrenalina: 8 mg en 100 mL, paciente 70 kg a 0,1 mcg/kg/min => mL/h = '+r1.toFixed(2)+' (esperado ≈ 5.25)');
   console.assert(approx(r1,5.25,0.001),'TC1 falló');
 
   // TC2: Nitroglicerina 50 mg/250 mL, 100 mcg/min (no peso) => 30 mL/h
   let r2 = calcMlphPure(100,'mcg/min',NaN,50,250);
-  log('TC2 nitro => mL/h = '+r2.toFixed(2)+' (esperado ≈ 30.00)');
+  log('TC2 Nitroglicerina: 50 mg en 250 mL, perfusión sin peso a 100 mcg/min => mL/h = '+r2.toFixed(2)+' (esperado ≈ 30.00)');
   console.assert(approx(r2,30,0.001),'TC2 falló');
 
   // TC3: Propofol frasco 1% 20 mL (200 mg/20 mL = 10 mg/mL), 1 mg/kg/h, 70 kg => 7 mL/h
   let r3 = calcMlphPure(1,'mg/kg/h',70,200,20);
-  log('TC3 propofol => mL/h = '+r3.toFixed(2)+' (esperado ≈ 7.00)');
+  log('TC3 Propofol: frasco 1% (200 mg en 20 mL), paciente 70 kg a 1 mg/kg/h => mL/h = '+r3.toFixed(2)+' (esperado ≈ 7.00)');
   console.assert(approx(r3,7,0.001),'TC3 falló');
 
   // TC4: Midazolam 100 mg/100 mL, 0.05 mg/kg/h, 80 kg => 4.00 mL/h
   let r4 = calcMlphPure(0.05,'mg/kg/h',80,100,100);
-  log('TC4 midazolam => mL/h = '+r4.toFixed(2)+' (esperado ≈ 4.00)');
+  log('TC4 Midazolam: 100 mg en 100 mL, paciente 80 kg a 0,05 mg/kg/h => mL/h = '+r4.toFixed(2)+' (esperado ≈ 4.00)');
   console.assert(approx(r4,4.00,0.001),'TC4 falló');
 
   // TC5: Fentanilo 5 mg/100 mL, 2 mcg/kg/h, 70 kg => 2.80 mL/h
   let r5 = calcMlphPure(2,'mcg/kg/h',70,5,100);
-  log('TC5 fentanilo => mL/h = '+r5.toFixed(2)+' (esperado ≈ 2.80)');
+  log('TC5 Fentanilo: 5 mg en 100 mL, paciente 70 kg a 2 mcg/kg/h => mL/h = '+r5.toFixed(2)+' (esperado ≈ 2.80)');
   console.assert(approx(r5,2.80,0.002),'TC5 falló');
 
   log('✔ Pruebas completadas');

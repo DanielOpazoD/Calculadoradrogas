@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Calculadora de Drogas Vasoactivas / Sedantes</title>
+<title>Calculadora de Drogas</title>
 <style>
   :root{ --blue:#0d47a1;--blue-100:#e6f0fa;--text:#0b2239;--muted:#5b7186;--ok:#1565c0; }
   *{box-sizing:border-box}
   body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,'Noto Sans',sans-serif;color:var(--text);margin:0;background:#f7f9fc}
-  header{background:linear-gradient(180deg,#0d47a1,#1565c0);color:#fff;padding:16px 20px}
-  header h1{margin:0;font-size:20px;line-height:1.2}
+  header{background:linear-gradient(135deg,#0d47a1,#1976d2,#42a5f5);color:#fff;padding:24px 20px;text-align:center;box-shadow:0 12px 30px rgba(13,71,161,.25)}
+  header h1{margin:0;font-size:34px;line-height:1.1;letter-spacing:-0.01em;text-transform:uppercase}
+  header p.subtitle{margin:6px 0 0;font-size:16px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,.85)}
   main{max-width:1100px;margin:20px auto;padding:0 16px 32px}
   .grid{display:grid;gap:16px}
   @media(min-width:880px){.grid{grid-template-columns:1.1fr 1fr}}
@@ -32,6 +33,7 @@
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .note{font-size:10px;background:#f1f7ff;border:1px dashed #aac7ff;border-radius:8px;padding:8px}
   .btn{padding:6px 12px;border:1px solid #cfd9e3;border-radius:999px;background:#fff;cursor:pointer;font-size:13px;transition:background .2s,border-color .2s,transform .1s}
+  .btn-sm{padding:4px 10px;font-size:12px}
   .btn:hover{background:#f1f7ff}
   .btn:active{transform:translateY(1px)}
   .btn-primary{background:linear-gradient(120deg,#1565c0,#1976d2);color:#fff;border-color:#1565c0;box-shadow:0 4px 10px rgba(21,101,192,.2)}
@@ -64,7 +66,8 @@
 </head>
 <body>
 <header>
-  <h1>Calculadora de Drogas Vasoactivas / Inotrópicos / Vasodilatadores y Sedantes</h1>
+  <h1>Calculadora de Drogas</h1>
+  <p class="subtitle">Drogas vasoactivas, vasodilatadores y sedoanalgesia</p>
 </header>
 <main>
   <div class="grid">
@@ -96,7 +99,7 @@
         </div>
       </div>
       <div class="actions">
-        <button type="button" class="btn" id="resetAll">Limpiar campos</button>
+        <button type="button" class="btn btn-sm" id="resetAll">Limpiar campos</button>
         <span class="hint">Vuelve al estado inicial de la calculadora.</span>
       </div>
     </section>
@@ -157,7 +160,6 @@
         <div id="resumen">
           <div class="table-wrapper">
             <table>
-              <tr class="header"><th colspan="2">Resumen (tabla base)</th></tr>
               <tr><td class="tag">Fármaco</td><td id="t_drug">—</td></tr>
               <tr><td class="tag">Dosis objetivo</td><td id="t_dose">—</td></tr>
               <tr><td class="tag">Peso</td><td id="t_weight">—</td></tr>
@@ -519,7 +521,7 @@ function recalc(){
       statusText = `Falta información: ${readable}`;
       statusClass = 'status status--warn';
     } else if (isFinite(ml_per_h) && hasAnyInput){
-      statusText = 'Cálculo listo. Revisa el resumen y confirma según protocolo local.';
+      statusText = 'Resultados listos para revisión. Utiliza el resumen y valida con tu protocolo local.';
       statusClass = 'status status--ok';
     } else if (hasAnyInput){
       statusText = 'Completa los campos obligatorios para obtener un resultado.';
@@ -650,27 +652,27 @@ function runTests(){
 
   // TC1: Noradrenalina 8 mg/100 mL, 0.1 mcg/kg/min, 70 kg => 5.25 mL/h
   let r1 = calcMlphPure(0.1,'mcg/kg/min',70,8,100);
-  log('TC1 norepi => mL/h = '+r1.toFixed(2)+' (esperado ≈ 5.25)');
+  log('TC1 Noradrenalina: 8 mg en 100 mL, paciente 70 kg a 0,1 mcg/kg/min => mL/h = '+r1.toFixed(2)+' (esperado ≈ 5.25)');
   console.assert(approx(r1,5.25,0.001),'TC1 falló');
 
   // TC2: Nitroglicerina 50 mg/250 mL, 100 mcg/min (no peso) => 30 mL/h
   let r2 = calcMlphPure(100,'mcg/min',NaN,50,250);
-  log('TC2 nitro => mL/h = '+r2.toFixed(2)+' (esperado ≈ 30.00)');
+  log('TC2 Nitroglicerina: 50 mg en 250 mL, perfusión sin peso a 100 mcg/min => mL/h = '+r2.toFixed(2)+' (esperado ≈ 30.00)');
   console.assert(approx(r2,30,0.001),'TC2 falló');
 
   // TC3: Propofol frasco 1% 20 mL (200 mg/20 mL = 10 mg/mL), 1 mg/kg/h, 70 kg => 7 mL/h
   let r3 = calcMlphPure(1,'mg/kg/h',70,200,20);
-  log('TC3 propofol => mL/h = '+r3.toFixed(2)+' (esperado ≈ 7.00)');
+  log('TC3 Propofol: frasco 1% (200 mg en 20 mL), paciente 70 kg a 1 mg/kg/h => mL/h = '+r3.toFixed(2)+' (esperado ≈ 7.00)');
   console.assert(approx(r3,7,0.001),'TC3 falló');
 
   // TC4: Midazolam 100 mg/100 mL, 0.05 mg/kg/h, 80 kg => 4.00 mL/h
   let r4 = calcMlphPure(0.05,'mg/kg/h',80,100,100);
-  log('TC4 midazolam => mL/h = '+r4.toFixed(2)+' (esperado ≈ 4.00)');
+  log('TC4 Midazolam: 100 mg en 100 mL, paciente 80 kg a 0,05 mg/kg/h => mL/h = '+r4.toFixed(2)+' (esperado ≈ 4.00)');
   console.assert(approx(r4,4.00,0.001),'TC4 falló');
 
   // TC5: Fentanilo 5 mg/100 mL, 2 mcg/kg/h, 70 kg => 2.80 mL/h
   let r5 = calcMlphPure(2,'mcg/kg/h',70,5,100);
-  log('TC5 fentanilo => mL/h = '+r5.toFixed(2)+' (esperado ≈ 2.80)');
+  log('TC5 Fentanilo: 5 mg en 100 mL, paciente 70 kg a 2 mcg/kg/h => mL/h = '+r5.toFixed(2)+' (esperado ≈ 2.80)');
   console.assert(approx(r5,2.80,0.002),'TC5 falló');
 
   log('✔ Pruebas completadas');

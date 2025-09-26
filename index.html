@@ -13,31 +13,51 @@
   main{max-width:1100px;margin:20px auto;padding:0 16px 32px}
   .grid{display:grid;gap:16px}
   @media(min-width:880px){.grid{grid-template-columns:1.1fr 1fr}}
-  .card{background:#fff;border:1px solid #d7e1ec;border-radius:14px;box-shadow:0 1px 2px rgba(16,24,40,.06);padding:16px}
-  .card h2{margin:0 0 8px 0;font-size:16px;color:#0b2239}
+  .card{background:#fff;border:1px solid #d7e1ec;border-radius:14px;box-shadow:0 6px 12px rgba(16,24,40,.04);padding:18px 20px}
+  .card h2{margin:0 0 8px 0;font-size:16px;color:#0b2239;display:flex;align-items:center;gap:8px}
+  .card h2::after{content:"";flex:1;height:1px;background:#e3edf7;margin-left:8px}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
   label{font-size:12px;color:#304b63;margin-bottom:4px;display:block}
-  input,select{width:100%;padding:10px;border:1px solid #cfd9e3;border-radius:10px;background:#fff;font-size:14px}
-  input:focus,select:focus{outline:2px solid #bdddff;border-color:#8ec2ff}
+  input,select{width:100%;padding:10px;border:1px solid #cfd9e3;border-radius:10px;background:#fff;font-size:14px;transition:border-color .2s,box-shadow .2s}
+  input:focus,select:focus{outline:2px solid #bdddff;border-color:#8ec2ff;box-shadow:0 0 0 3px rgba(141,200,255,.25)}
+  input.invalid,select.invalid{border-color:#d93025;box-shadow:0 0 0 2px rgba(217,48,37,.15)}
   .hint{font-size:12px;color:var(--muted)}
+  .hint.success{color:var(--blue);font-weight:600}
+  .hint.error{color:#d93025}
   .pill{display:inline-block;background:#e1f5fe;color:#0277bd;border-radius:999px;padding:2px 8px;font-weight:600;font-size:12px;margin-left:6px}
   .range{font-size:12px;color:#0b2239;background:#fffde7;border:1px solid #ffecb3;border-radius:8px;padding:6px 8px;display:inline-block}
   .muted{color:#5b7186}
   .hr{height:1px;background:#e6edf5;margin:8px 0}
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .note{font-size:10px;background:#f1f7ff;border:1px dashed #aac7ff;border-radius:8px;padding:8px}
-  .btn{padding:6px 10px;border:1px solid #cfd9e3;border-radius:999px;background:#fff;cursor:pointer}
+  .btn{padding:6px 12px;border:1px solid #cfd9e3;border-radius:999px;background:#fff;cursor:pointer;font-size:13px;transition:background .2s,border-color .2s,transform .1s}
   .btn:hover{background:#f1f7ff}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:linear-gradient(120deg,#1565c0,#1976d2);color:#fff;border-color:#1565c0;box-shadow:0 4px 10px rgba(21,101,192,.2)}
+  .btn-primary:hover{background:linear-gradient(120deg,#0d47a1,#1565c0)}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;align-items:center}
+  .status{font-size:13px;border-radius:10px;padding:10px 12px;margin:12px 0 0 0;background:#eef5ff;color:#0b2239;line-height:1.4;box-shadow:inset 0 0 0 1px #d1e3ff}
+  .status.status--warn{background:#fff4e6;color:#8a4b16;box-shadow:inset 0 0 0 1px #f7cda1}
+  .status.status--ok{background:#e6f7ef;color:#0f5132;box-shadow:inset 0 0 0 1px #b0e1c3}
+  .status.status--neutral{background:#f3f6fb;color:#44566c;box-shadow:inset 0 0 0 1px #d7e1ec}
+  .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:8px;border-radius:12px;border:1px solid #e1e9f2}
+  table{border-collapse:collapse;width:100%;min-width:520px}
+  th,td{padding:8px 12px;text-align:left;border-bottom:1px solid #e6edf5}
+  tr.header th{background:#f1f6ff;color:#0d47a1;font-size:12px;text-transform:uppercase;letter-spacing:0.04em}
+  #resumen td.tag{width:45%;color:#304b63;font-weight:600}
+  #resumen tr:nth-child(even){background:#f9fbff}
+  #farmacos table{font-size:11px}
+  #farmacos td,#farmacos th{padding:8px 10px}
+  #farmacos tr:nth-child(even){background:#f9fbff}
+  @media(max-width:640px){.result{font-size:32px}}
   details.dev{margin-top:16px}
   details.dev summary{cursor:pointer;color:#0d47a1;font-weight:600}
   pre#testLog{background:#0b223910;color:#0b2239;padding:8px;border-radius:8px;overflow:auto}
-  /* Ajustes solicitados */
-  .result{font-size:40px;font-weight:800;margin:8px 0;color:var(--blue)}
-  #farmacos table{font-size:11px}
-  #farmacos td, #farmacos th{padding:3px}
-  #resumen table{font-size:11px}
-  .tag{font-weight:700}
+    /* Ajustes solicitados */
+    .result{font-size:40px;font-weight:800;margin:8px 0;color:var(--blue)}
+    #resumen table{font-size:12px}
+    .tag{font-weight:700}
   #presets h3{font-size:12px;margin:8px 0}
   #presetButtons .btn{font-size:12px;padding:4px 8px}
 </style>
@@ -75,6 +95,10 @@
           <div class="hint" id="doseHint"></div>
         </div>
       </div>
+      <div class="actions">
+        <button type="button" class="btn" id="resetAll">Limpiar campos</button>
+        <span class="hint">Vuelve al estado inicial de la calculadora.</span>
+      </div>
     </section>
 
     <section class="card">
@@ -102,65 +126,74 @@
     </section>
   </div>
 
-  <section class="card" style="margin-top:16px">
-    <h2>3) Resultados</h2>
-    <div class="grid">
-      <div>
-        <div class="result"><span id="mlh">—</span> mL/h</div>
-        
-        <div class="row" style="margin-top:8px">
-          <div>
-            <label>Volumen en 24 h</label>
-            <div class="pill"><span id="vol24">—</span> mL/24h</div>
+    <section class="card" style="margin-top:16px">
+      <h2>3) Resultados</h2>
+      <div class="grid">
+        <div>
+          <div class="result"><span id="mlh">—</span> mL/h</div>
+          <p id="statusMessage" class="status status--neutral">Completa los datos para ver resultados.</p>
+
+          <div class="row" style="margin-top:8px">
+            <div>
+              <label>Volumen en 24 h</label>
+              <div class="pill"><span id="vol24">—</span> mL/24h</div>
+            </div>
+            <div>
+              <label>Fármacos necesarios (24 h)</label>
+              <div class="pill"><span id="vials24">—</span> ampollas/frasco</div>
+            </div>
           </div>
-          <div>
-            <label>Fármacos necesarios (24 h)</label>
-            <div class="pill"><span id="vials24">—</span> ampollas/frasco</div>
+          <div class="row" style="margin-top:8px">
+            <div>
+              <label>Bolsas/Preparaciones de esta dilución (24 h)</label>
+              <div class="pill"><span id="bags24">—</span> bolsas</div>
+            </div>
+            <div>
+              <label>Fármaco total usado (24 h)</label>
+              <div class="pill"><span id="mg24">—</span> mg</div>
+            </div>
           </div>
         </div>
-        <div class="row" style="margin-top:8px">
-          <div>
-            <label>Bolsas/Preparaciones de esta dilución (24 h)</label>
-            <div class="pill"><span id="bags24">—</span> bolsas</div>
+        <div id="resumen">
+          <div class="table-wrapper">
+            <table>
+              <tr class="header"><th colspan="2">Resumen (tabla base)</th></tr>
+              <tr><td class="tag">Fármaco</td><td id="t_drug">—</td></tr>
+              <tr><td class="tag">Dosis objetivo</td><td id="t_dose">—</td></tr>
+              <tr><td class="tag">Peso</td><td id="t_weight">—</td></tr>
+              <tr><td class="tag">Concentración</td><td id="t_conc">—</td></tr>
+              <tr><td class="tag">mL/h</td><td id="t_mlh">—</td></tr>
+              <tr><td class="tag">mL / 24 h</td><td id="t_vol24">—</td></tr>
+              <tr><td class="tag">mg / 24 h</td><td id="t_mg24">—</td></tr>
+              <tr><td class="tag">Ampollas / 24 h</td><td id="t_vials24">—</td></tr>
+              <tr><td class="tag">Bolsas / 24 h</td><td id="t_bags24">—</td></tr>
+            </table>
           </div>
-          <div>
-            <label>Fármaco total usado (24 h)</label>
-            <div class="pill"><span id="mg24">—</span> mg</div>
+          <div class="actions">
+            <button type="button" class="btn btn-primary" id="copyResumen">Copiar resumen</button>
+            <span id="copyFeedback" class="hint" aria-live="polite"></span>
           </div>
+          <div class="note" style="margin-top:8px">⚠️ Esta calculadora es una ayuda. Siempre confirma las dosis y preparaciones según protocolo local y doble verificación independiente.</div>
         </div>
       </div>
-      <div id="resumen">
-        <table>
-          <tr class="header"><th colspan="2">Resumen (tabla base)</th></tr>
-          <tr><td class="tag">Fármaco</td><td id="t_drug">—</td></tr>
-          <tr><td class="tag">Dosis objetivo</td><td id="t_dose">—</td></tr>
-          <tr><td class="tag">Peso</td><td id="t_weight">—</td></tr>
-          <tr><td class="tag">Concentración</td><td id="t_conc">—</td></tr>
-          <tr><td class="tag">mL/h</td><td id="t_mlh">—</td></tr>
-          <tr><td class="tag">mL / 24 h</td><td id="t_vol24">—</td></tr>
-          <tr><td class="tag">mg / 24 h</td><td id="t_mg24">—</td></tr>
-          <tr><td class="tag">Ampollas / 24 h</td><td id="t_vials24">—</td></tr>
-          <tr><td class="tag">Bolsas / 24 h</td><td id="t_bags24">—</td></tr>
-        </table>
-        <div class="note" style="margin-top:8px">⚠️ Esta calculadora es una ayuda. Siempre confirma las dosis y preparaciones según protocolo local y doble verificación independiente.</div>
-      </div>
-    </div>
-  </section>
+    </section>
 
   <section class="card" id="farmacos" style="margin-top:16px">
     <h2>Fármacos disponibles</h2>
-    <table>
-      <tr class="header"><th>Fármaco</th><th>Presentación típica</th><th>Rango habitual</th><th>Unidad base</th></tr>
-      <tr><td>Noradrenalina</td><td>4 mg/ampolla</td><td>0,03 – 1 mcg/kg/min</td><td>mcg/kg/min</td></tr>
-      <tr><td>Adrenalina</td><td>1 mg/ampolla</td><td>0,03 – 1 mcg/kg/min</td><td>mcg/kg/min</td></tr>
-      <tr><td>Dobutamina</td><td>250 mg/ampolla</td><td>2 – 10 mcg/kg/min</td><td>mcg/kg/min</td></tr>
-      <tr><td>Dopamina</td><td>200 mg/ampolla</td><td>2 – 10 mcg/kg/min</td><td>mcg/kg/min</td></tr>
-      <tr><td>Nitroglicerina</td><td>50 mg/frasco</td><td>10 – 200 mcg/min (hasta 400 en crisis hipertensiva)</td><td>mcg/min</td></tr>
-      <tr><td>Propofol</td><td>1% 20 mL (≈10 mg/mL, 200 mg totales)</td><td>0,3 – 3 mg/kg/h</td><td>mg/kg/h</td></tr>
-      <tr><td>Midazolam</td><td>50 mg/ampolla</td><td>0,02 – 0,1 mg/kg/h</td><td>mg/kg/h</td></tr>
-      <tr><td>Fentanilo</td><td>0,5 mg/ampolla</td><td>1 – 3,6 mcg/kg/h</td><td>mcg/kg/h</td></tr>
-      <tr><td>Ketamina</td><td>500 mg/frasco</td><td>0,1 – 2 mg/kg/h</td><td>mg/kg/h</td></tr>
-    </table>
+    <div class="table-wrapper">
+      <table>
+        <tr class="header"><th>Fármaco</th><th>Presentación típica</th><th>Rango habitual</th><th>Unidad base</th></tr>
+        <tr><td>Noradrenalina</td><td>4 mg/ampolla</td><td>0,03 – 1 mcg/kg/min</td><td>mcg/kg/min</td></tr>
+        <tr><td>Adrenalina</td><td>1 mg/ampolla</td><td>0,03 – 1 mcg/kg/min</td><td>mcg/kg/min</td></tr>
+        <tr><td>Dobutamina</td><td>250 mg/ampolla</td><td>2 – 10 mcg/kg/min</td><td>mcg/kg/min</td></tr>
+        <tr><td>Dopamina</td><td>200 mg/ampolla</td><td>2 – 10 mcg/kg/min</td><td>mcg/kg/min</td></tr>
+        <tr><td>Nitroglicerina</td><td>50 mg/frasco</td><td>10 – 200 mcg/min (hasta 400 en crisis hipertensiva)</td><td>mcg/min</td></tr>
+        <tr><td>Propofol</td><td>1% 20 mL (≈10 mg/mL, 200 mg totales)</td><td>0,3 – 3 mg/kg/h</td><td>mg/kg/h</td></tr>
+        <tr><td>Midazolam</td><td>50 mg/ampolla</td><td>0,02 – 0,1 mg/kg/h</td><td>mg/kg/h</td></tr>
+        <tr><td>Fentanilo</td><td>0,5 mg/ampolla</td><td>1 – 3,6 mcg/kg/h</td><td>mcg/kg/h</td></tr>
+        <tr><td>Ketamina</td><td>500 mg/frasco</td><td>0,1 – 2 mg/kg/h</td><td>mg/kg/h</td></tr>
+      </table>
+    </div>
   </section>
 
   <details class="dev" closed>
@@ -238,6 +271,8 @@ const fmt = (x, d=2) => {
   return x.toFixed(d);
 };
 
+const capitalize = (txt='') => txt ? txt.charAt(0).toUpperCase() + txt.slice(1) : '';
+
 // --- DOM refs ---
 const drugSel = document.getElementById('drug');
 const doseUnitSel = document.getElementById('doseUnit');
@@ -261,6 +296,10 @@ const vials24 = document.getElementById('vials24');
 const bags24 = document.getElementById('bags24');
 const presetsDiv = document.getElementById('presets');
 const presetButtons = document.getElementById('presetButtons');
+const statusMessage = document.getElementById('statusMessage');
+const copyBtn = document.getElementById('copyResumen');
+const copyFeedback = document.getElementById('copyFeedback');
+const resetBtn = document.getElementById('resetAll');
 
 // Tabla
 const t_drug = document.getElementById('t_drug');
@@ -277,6 +316,11 @@ const t_bags24 = document.getElementById('t_bags24');
 const REQUIRED_IDS = {mixMgInp, mixMlInp, vialMgInp, drugSel, doseUnitSel, weightInp, doseInp};
 for (const [k,v] of Object.entries(REQUIRED_IDS)){
   if (!v){ console.error('Falta elemento en el DOM:', k); }
+}
+
+function markValidity(input, ok){
+  if(!input) return;
+  input.classList.toggle('invalid', !ok);
 }
 
 // Poblar fármacos
@@ -350,6 +394,68 @@ function getNumbers(){
 
 function recalc(){
   const {drug, weight, doseVal, doseUnit, mixMg, mixMl, vialMg} = getNumbers();
+  const weightRaw = weightInp?.value ?? '';
+  const doseRaw = doseInp?.value ?? '';
+  const mixMgRaw = mixMgInp?.value ?? '';
+  const mixMlRaw = mixMlInp?.value ?? '';
+  const vialMgRaw = vialMgInp?.value ?? '';
+  const hasAnyInput = [weightRaw, doseRaw, mixMgRaw, mixMlRaw].some(v=>v !== '');
+  const issues = [];
+
+  if (drug?.usesWeight){
+    if (weightRaw === ''){
+      if (hasAnyInput) issues.push('ingresa el peso del paciente');
+      markValidity(weightInp, true);
+    } else if (!isFinite(weight) || weight<=0){
+      issues.push('el peso debe ser mayor a 0');
+      markValidity(weightInp, false);
+    } else {
+      markValidity(weightInp, true);
+    }
+  } else {
+    markValidity(weightInp, true);
+  }
+
+  if (doseRaw === ''){
+    if (hasAnyInput) issues.push('indica la dosis objetivo');
+    markValidity(doseInp, true);
+  } else if (!isFinite(doseVal) || doseVal<=0){
+    issues.push('la dosis debe ser mayor a 0');
+    markValidity(doseInp, false);
+  } else {
+    markValidity(doseInp, true);
+  }
+
+  if (mixMgRaw === ''){
+    if (hasAnyInput) issues.push('define los mg totales de la mezcla');
+    markValidity(mixMgInp, true);
+  } else if (!isFinite(mixMg) || mixMg<=0){
+    issues.push('los mg totales deben ser mayores a 0');
+    markValidity(mixMgInp, false);
+  } else {
+    markValidity(mixMgInp, true);
+  }
+
+  if (mixMlRaw === ''){
+    if (hasAnyInput) issues.push('define el volumen total de la mezcla');
+    markValidity(mixMlInp, true);
+  } else if (!isFinite(mixMl) || mixMl<=0){
+    issues.push('el volumen total debe ser mayor a 0');
+    markValidity(mixMlInp, false);
+  } else {
+    markValidity(mixMlInp, true);
+  }
+
+  if (vialMgRaw !== ''){
+    if (!isFinite(vialMg) || vialMg<=0){
+      issues.push('el contenido por ampolla debe ser mayor a 0');
+      markValidity(vialMgInp, false);
+    } else {
+      markValidity(vialMgInp, true);
+    }
+  } else {
+    markValidity(vialMgInp, true);
+  }
 
   // Concentración solo en mcg/mL
   const conc_mg_ml = (isFinite(mixMg) && isFinite(mixMl) && mixMl>0) ? (mixMg / mixMl) : NaN;
@@ -405,6 +511,109 @@ function recalc(){
   t_mg24.textContent = isFinite(mg_24) ? Math.round(mg_24) : '—';
   t_vials24.textContent = isFinite(vials_24)? vials_24 : '—';
   t_bags24.textContent = isFinite(bags_24)? bags_24 : '—';
+  if (statusMessage){
+    let statusText = 'Completa los datos para ver resultados.';
+    let statusClass = 'status status--neutral';
+    if (issues.length){
+      const readable = issues.map(capitalize).join('. ') + '.';
+      statusText = `Falta información: ${readable}`;
+      statusClass = 'status status--warn';
+    } else if (isFinite(ml_per_h) && hasAnyInput){
+      statusText = 'Cálculo listo. Revisa el resumen y confirma según protocolo local.';
+      statusClass = 'status status--ok';
+    } else if (hasAnyInput){
+      statusText = 'Completa los campos obligatorios para obtener un resultado.';
+      statusClass = 'status status--warn';
+    }
+    statusMessage.textContent = statusText;
+    statusMessage.className = statusClass;
+  }
+}
+
+function buildResumenText(){
+  const rows = Array.from(document.querySelectorAll('#resumen table tr'));
+  return rows.map(row=>{
+    const cells = Array.from(row.cells).map(c=>c.textContent.trim()).filter(Boolean);
+    if (!cells.length) return '';
+    if (row.classList.contains('header')) return `=== ${cells.join(' ')} ===`;
+    if (cells.length === 1) return cells[0];
+    return `${cells[0]}: ${cells.slice(1).join(' ')}`;
+  }).filter(Boolean).join('\n');
+}
+
+async function handleCopyResumen(){
+  const text = buildResumenText();
+  if (!text){
+    if (copyFeedback){
+      copyFeedback.textContent = 'No hay datos para copiar todavía.';
+      copyFeedback.classList.add('error');
+      copyFeedback.classList.remove('success');
+    }
+    return;
+  }
+
+  let copied = false;
+  if (navigator.clipboard?.writeText){
+    try {
+      await navigator.clipboard.writeText(text);
+      copied = true;
+    } catch (err){
+      copied = false;
+    }
+  }
+  if (!copied){
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly','');
+    area.style.position = 'fixed';
+    area.style.top = '-1000px';
+    document.body.appendChild(area);
+    area.select();
+    try {
+      copied = document.execCommand('copy');
+    } catch (err){
+      copied = false;
+    }
+    document.body.removeChild(area);
+  }
+
+  if (copyFeedback){
+    copyFeedback.classList.remove('success','error');
+    if (copied){
+      copyFeedback.textContent = 'Resumen copiado al portapapeles.';
+      copyFeedback.classList.add('success');
+    } else {
+      copyFeedback.textContent = 'No se pudo copiar automáticamente. Copia manualmente desde la tabla.';
+      copyFeedback.classList.add('error');
+    }
+    clearTimeout(copyFeedback._timer);
+    copyFeedback._timer = setTimeout(()=>{
+      copyFeedback.textContent='';
+      copyFeedback.classList.remove('success','error');
+    }, 4000);
+  }
+}
+
+function handleReset(){
+  if (copyFeedback){
+    copyFeedback.textContent='';
+    copyFeedback.classList.remove('success','error');
+    clearTimeout(copyFeedback._timer);
+  }
+  if (drugSel){
+    drugSel.value = 'norepi';
+  }
+  if (doseInp) doseInp.value = '';
+  if (weightInp) weightInp.value = '';
+  if (mixMgInp) mixMgInp.value = '';
+  if (mixMlInp) mixMlInp.value = '';
+  onDrugChange();
+  const defaultDrug = DRUGS.find(d=>d.id===drugSel?.value);
+  if (vialMgInp && defaultDrug){
+    vialMgInp.value = defaultDrug.vialMg;
+  }
+  [doseInp, weightInp, mixMgInp, mixMlInp, vialMgInp].forEach(el=>markValidity(el, true));
+  recalc();
 }
 
 // Eventos (con guardas para evitar null)
@@ -413,6 +622,8 @@ function recalc(){
   .forEach(el=>{ el.addEventListener('input', recalc); el.addEventListener('change', recalc); });
 
 drugSel && drugSel.addEventListener('change', onDrugChange);
+copyBtn && copyBtn.addEventListener('click', handleCopyResumen);
+resetBtn && resetBtn.addEventListener('click', handleReset);
 
 // Inicializar
 (function init(){

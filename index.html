@@ -39,7 +39,7 @@
   .btn-primary{background:linear-gradient(120deg,#1565c0,#1976d2);color:#fff;border-color:#1565c0;box-shadow:0 4px 10px rgba(21,101,192,.2)}
   .btn-primary:hover{background:linear-gradient(120deg,#0d47a1,#1565c0)}
   .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;align-items:center}
-  .status{font-size:13px;border-radius:10px;padding:10px 12px;margin:12px 0 0 0;background:#eef5ff;color:#0b2239;line-height:1.4;box-shadow:inset 0 0 0 1px #d1e3ff}
+  .status{font-size:12px;border-radius:8px;padding:8px 10px;margin:12px 0 0 0;background:#eef5ff;color:#0b2239;line-height:1.4;box-shadow:inset 0 0 0 1px #d1e3ff}
   .status.status--warn{background:#fff4e6;color:#8a4b16;box-shadow:inset 0 0 0 1px #f7cda1}
   .status.status--ok{background:#e6f7ef;color:#0f5132;box-shadow:inset 0 0 0 1px #b0e1c3}
   .status.status--neutral{background:#f3f6fb;color:#44566c;box-shadow:inset 0 0 0 1px #d7e1ec}
@@ -177,10 +177,14 @@
   </section>
 
   <details class="dev" closed>
-    <summary>Simulador y verificación de cálculos</summary>
+    <summary>Simulador y pruebas internas</summary>
     <div style="margin:8px 0">
       <p class="hint">Este simulador ejecuta casos clínicos típicos (noradrenalina, nitroglicerina, propofol, midazolam y fentanilo) para verificar que el cálculo de mL/h coincida con lo esperado según la concentración configurada y la unidad de dosis. No modifica la interfaz ni tus valores actuales; solo muestra resultados esperados vs. calculados.</p>
-      <button class="btn" id="runTests">Ejecutar pruebas</button>
+      <p class="hint" style="margin-top:8px">Además incluye una verificación rápida de la estructura HTML clave para asegurar que los elementos críticos sigan presentes antes de automatizar cambios.</p>
+      <div class="actions" style="margin-top:8px">
+        <button type="button" class="btn" id="runTests">Pruebas de cálculo</button>
+        <button type="button" class="btn btn-sm" id="runHtmlTests">Verificar HTML</button>
+      </div>
     </div>
     <pre id="testLog"></pre>
   </details>
@@ -519,6 +523,52 @@ resetBtn && resetBtn.addEventListener('click', handleReset);
 })();
 
 // ----------------- Pruebas automáticas (no afectan el estado de la UI) -----------------
+const TEST_LOG_ID = 'testLog';
+
+function clearTestLog(){
+  const el = document.getElementById(TEST_LOG_ID);
+  if(el){ el.textContent=''; }
+}
+
+function appendTestLog(message){
+  console.log(message);
+  const el = document.getElementById(TEST_LOG_ID);
+  if(el){ el.textContent += message + '\n'; }
+}
+
+const HTML_TESTS = [
+  { name:'Select de fármaco disponible', test:()=> !!(drugSel && drugSel.tagName === 'SELECT') },
+  { name:'Mensaje de estado presente', test:()=> !!(statusMessage && statusMessage.classList.contains('status')) },
+  { name:'Tabla de fármacos con cabecera', test:()=> document.querySelectorAll('#farmacos table tr').length >= 2 },
+  { name:'Botón de limpieza disponible', test:()=> !!(resetBtn && resetBtn.tagName === 'BUTTON') },
+  { name:'Área de registro de pruebas presente', test:()=> !!document.getElementById(TEST_LOG_ID) }
+];
+
+function runHtmlIntegrityTests(){
+  appendTestLog('— Suite de integridad HTML —');
+  let allPassed = true;
+  HTML_TESTS.forEach(({name, test})=>{
+    let passed = false;
+    let detail = '';
+    try {
+      const result = test();
+      if (typeof result === 'object' && result !== null){
+        passed = !!result.ok;
+        detail = result.message || '';
+      } else {
+        passed = !!result;
+      }
+    } catch(err){
+      passed = false;
+      detail = err?.message || String(err);
+    }
+    allPassed = allPassed && passed;
+    appendTestLog(`${passed ? '✔' : '✖'} ${name}${detail ? ' → ' + detail : ''}`);
+  });
+  appendTestLog(allPassed ? '✔ Integridad HTML confirmada' : '✖ Se encontraron problemas en la estructura HTML');
+  return allPassed;
+}
+
 function calcMlphPure(doseVal, unit, weight, mixMg, mixMl){
   const meta = UNIT_MAP[unit];
   if(!meta) return NaN;
@@ -533,39 +583,42 @@ function calcMlphPure(doseVal, unit, weight, mixMg, mixMl){
 }
 
 function runTests(){
-  const log = (msg)=>{ console.log(msg); const el=document.getElementById('testLog'); if(el){ el.textContent += msg+'\n'; } };
+  appendTestLog('— Suite de cálculos —');
   const approx=(a,b,eps=0.02)=>Math.abs(a-b)<=Math.abs(b)*eps;
 
   // TC1: Noradrenalina 8 mg/100 mL, 0.1 mcg/kg/min, 70 kg => 5.25 mL/h
   let r1 = calcMlphPure(0.1,'mcg/kg/min',70,8,100);
-  log('TC1 Noradrenalina: 8 mg en 100 mL, paciente 70 kg a 0,1 mcg/kg/min => mL/h = '+r1.toFixed(2)+' (esperado ≈ 5.25)');
+  appendTestLog('TC1 Noradrenalina: 8 mg en 100 mL, paciente 70 kg a 0,1 mcg/kg/min => mL/h = '+r1.toFixed(2)+' (esperado ≈ 5.25)');
   console.assert(approx(r1,5.25,0.001),'TC1 falló');
 
   // TC2: Nitroglicerina 50 mg/250 mL, 100 mcg/min (no peso) => 30 mL/h
   let r2 = calcMlphPure(100,'mcg/min',NaN,50,250);
-  log('TC2 Nitroglicerina: 50 mg en 250 mL, perfusión sin peso a 100 mcg/min => mL/h = '+r2.toFixed(2)+' (esperado ≈ 30.00)');
+  appendTestLog('TC2 Nitroglicerina: 50 mg en 250 mL, perfusión sin peso a 100 mcg/min => mL/h = '+r2.toFixed(2)+' (esperado ≈ 30.00)');
   console.assert(approx(r2,30,0.001),'TC2 falló');
 
   // TC3: Propofol frasco 1% 20 mL (200 mg/20 mL = 10 mg/mL), 1 mg/kg/h, 70 kg => 7 mL/h
   let r3 = calcMlphPure(1,'mg/kg/h',70,200,20);
-  log('TC3 Propofol: frasco 1% (200 mg en 20 mL), paciente 70 kg a 1 mg/kg/h => mL/h = '+r3.toFixed(2)+' (esperado ≈ 7.00)');
+  appendTestLog('TC3 Propofol: frasco 1% (200 mg en 20 mL), paciente 70 kg a 1 mg/kg/h => mL/h = '+r3.toFixed(2)+' (esperado ≈ 7.00)');
   console.assert(approx(r3,7,0.001),'TC3 falló');
 
   // TC4: Midazolam 100 mg/100 mL, 0.05 mg/kg/h, 80 kg => 4.00 mL/h
   let r4 = calcMlphPure(0.05,'mg/kg/h',80,100,100);
-  log('TC4 Midazolam: 100 mg en 100 mL, paciente 80 kg a 0,05 mg/kg/h => mL/h = '+r4.toFixed(2)+' (esperado ≈ 4.00)');
+  appendTestLog('TC4 Midazolam: 100 mg en 100 mL, paciente 80 kg a 0,05 mg/kg/h => mL/h = '+r4.toFixed(2)+' (esperado ≈ 4.00)');
   console.assert(approx(r4,4.00,0.001),'TC4 falló');
 
   // TC5: Fentanilo 5 mg/100 mL, 2 mcg/kg/h, 70 kg => 2.80 mL/h
   let r5 = calcMlphPure(2,'mcg/kg/h',70,5,100);
-  log('TC5 Fentanilo: 5 mg en 100 mL, paciente 70 kg a 2 mcg/kg/h => mL/h = '+r5.toFixed(2)+' (esperado ≈ 2.80)');
+  appendTestLog('TC5 Fentanilo: 5 mg en 100 mL, paciente 70 kg a 2 mcg/kg/h => mL/h = '+r5.toFixed(2)+' (esperado ≈ 2.80)');
   console.assert(approx(r5,2.80,0.002),'TC5 falló');
 
-  log('✔ Pruebas completadas');
+  appendTestLog('✔ Pruebas completadas');
 }
 
 const runBtn = document.getElementById('runTests');
-runBtn && runBtn.addEventListener('click', ()=>{ document.getElementById('testLog').textContent=''; runTests(); });
+runBtn && runBtn.addEventListener('click', ()=>{ clearTestLog(); runTests(); });
+
+const runHtmlBtn = document.getElementById('runHtmlTests');
+runHtmlBtn && runHtmlBtn.addEventListener('click', ()=>{ clearTestLog(); runHtmlIntegrityTests(); });
 
 </script>
 </body>

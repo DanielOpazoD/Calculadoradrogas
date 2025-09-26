@@ -47,11 +47,6 @@
   table{border-collapse:collapse;width:100%;min-width:520px}
   th,td{padding:8px 12px;text-align:left;border-bottom:1px solid #e6edf5}
   tr.header th{background:#f1f6ff;color:#0d47a1;font-size:12px;text-transform:uppercase;letter-spacing:0.04em}
-  .summary-card{display:flex;flex-direction:column;gap:12px}
-  .summary-list{display:grid;gap:8px;padding:12px;border:1px solid #e1e9f2;border-radius:12px;background:#f8fbff}
-  .summary-item{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#304b63}
-  .summary-item .value{color:#0b2239;font-weight:600;text-align:right}
-  @media(max-width:520px){.summary-item{flex-direction:column;align-items:flex-start}.summary-item .value{text-align:left}}
   #farmacos table{font-size:11px}
   #farmacos td,#farmacos th{padding:8px 10px}
   #farmacos tr:nth-child(even){background:#f9fbff}
@@ -159,25 +154,8 @@
             </div>
           </div>
         </div>
-        <div id="resumen" class="summary-card">
-          <div class="summary-list" aria-live="polite">
-            <div class="summary-item"><span class="tag">Fármaco</span><span class="value" id="t_drug">—</span></div>
-            <div class="summary-item"><span class="tag">Dosis objetivo</span><span class="value" id="t_dose">—</span></div>
-            <div class="summary-item"><span class="tag">Peso</span><span class="value" id="t_weight">—</span></div>
-            <div class="summary-item"><span class="tag">Concentración</span><span class="value" id="t_conc">—</span></div>
-            <div class="summary-item"><span class="tag">mL/h</span><span class="value" id="t_mlh">—</span></div>
-            <div class="summary-item"><span class="tag">mL / 24 h</span><span class="value" id="t_vol24">—</span></div>
-            <div class="summary-item"><span class="tag">mg / 24 h</span><span class="value" id="t_mg24">—</span></div>
-            <div class="summary-item"><span class="tag">Ampollas / 24 h</span><span class="value" id="t_vials24">—</span></div>
-            <div class="summary-item"><span class="tag">Bolsas / 24 h</span><span class="value" id="t_bags24">—</span></div>
-          </div>
-          <div class="actions">
-            <button type="button" class="btn btn-primary" id="copyResumen">Copiar resumen</button>
-            <span id="copyFeedback" class="hint" aria-live="polite"></span>
-          </div>
-          <div class="note" style="margin-top:8px">⚠️ Esta calculadora es una ayuda. Resultados listos para revisión; confirma las dosis y preparaciones según protocolo local con doble verificación independiente.</div>
-        </div>
       </div>
+      <div class="note" style="margin-top:16px">⚠️ Esta calculadora es una ayuda. Siempre confirma las dosis y preparaciones según protocolo local y doble verificación independiente. Resultados listos para revisión; utiliza estos resultados y valida con tu protocolo local.</div>
     </section>
 
   <section class="card" id="farmacos" style="margin-top:16px">
@@ -299,20 +277,7 @@ const bags24 = document.getElementById('bags24');
 const presetsDiv = document.getElementById('presets');
 const presetButtons = document.getElementById('presetButtons');
 const statusMessage = document.getElementById('statusMessage');
-const copyBtn = document.getElementById('copyResumen');
-const copyFeedback = document.getElementById('copyFeedback');
 const resetBtn = document.getElementById('resetAll');
-
-// Tabla
-const t_drug = document.getElementById('t_drug');
-const t_dose = document.getElementById('t_dose');
-const t_weight = document.getElementById('t_weight');
-const t_conc = document.getElementById('t_conc');
-const t_mlh = document.getElementById('t_mlh');
-const t_vol24 = document.getElementById('t_vol24');
-const t_mg24 = document.getElementById('t_mg24');
-const t_vials24 = document.getElementById('t_vials24');
-const t_bags24 = document.getElementById('t_bags24');
 
 // --- Seguridad: verificar existencia de elementos críticos ---
 const REQUIRED_IDS = {mixMgInp, mixMlInp, vialMgInp, drugSel, doseUnitSel, weightInp, doseInp};
@@ -504,15 +469,6 @@ function recalc(){
   vials24.textContent = isFinite(vials_24)? vials_24 : '—';
   bags24.textContent = isFinite(bags_24)? bags_24 : '—';
 
-  t_drug.textContent = drug? drug.name : '—';
-  t_dose.textContent = isFinite(doseVal)? `${doseVal} ${doseUnit}` : '—';
-  t_weight.textContent = (drug && drug.usesWeight)? (isFinite(weight)? `${weight} kg`:'—') : 'No aplica';
-  t_conc.textContent = isFinite(conc_mcg_ml)? `${fmt(conc_mcg_ml,0)} mcg/mL` : '—';
-  t_mlh.textContent = fmt(ml_per_h);
-  t_vol24.textContent = isFinite(vol_24) ? Math.round(vol_24) : '—';
-  t_mg24.textContent = isFinite(mg_24) ? Math.round(mg_24) : '—';
-  t_vials24.textContent = isFinite(vials_24)? vials_24 : '—';
-  t_bags24.textContent = isFinite(bags_24)? bags_24 : '—';
   if (statusMessage){
     let statusText = 'Completa los datos para ver resultados.';
     let statusClass = 'status status--neutral';
@@ -532,83 +488,7 @@ function recalc(){
   }
 }
 
-function buildResumenText(){
-  const fields = [
-    ['Fármaco', t_drug?.textContent?.trim() ?? ''],
-    ['Dosis objetivo', t_dose?.textContent?.trim() ?? ''],
-    ['Peso', t_weight?.textContent?.trim() ?? ''],
-    ['Concentración', t_conc?.textContent?.trim() ?? ''],
-    ['mL/h', t_mlh?.textContent?.trim() ?? ''],
-    ['mL / 24 h', t_vol24?.textContent?.trim() ?? ''],
-    ['mg / 24 h', t_mg24?.textContent?.trim() ?? ''],
-    ['Ampollas / 24 h', t_vials24?.textContent?.trim() ?? ''],
-    ['Bolsas / 24 h', t_bags24?.textContent?.trim() ?? ''],
-  ];
-  return fields
-    .filter(([,value]) => value && value !== '—')
-    .map(([label,value]) => `${label}: ${value}`)
-    .join('\n');
-}
-
-async function handleCopyResumen(){
-  const text = buildResumenText();
-  if (!text){
-    if (copyFeedback){
-      copyFeedback.textContent = 'No hay datos para copiar todavía.';
-      copyFeedback.classList.add('error');
-      copyFeedback.classList.remove('success');
-    }
-    return;
-  }
-
-  let copied = false;
-  if (navigator.clipboard?.writeText){
-    try {
-      await navigator.clipboard.writeText(text);
-      copied = true;
-    } catch (err){
-      copied = false;
-    }
-  }
-  if (!copied){
-    const area = document.createElement('textarea');
-    area.value = text;
-    area.setAttribute('readonly','');
-    area.style.position = 'fixed';
-    area.style.top = '-1000px';
-    document.body.appendChild(area);
-    area.select();
-    try {
-      copied = document.execCommand('copy');
-    } catch (err){
-      copied = false;
-    }
-    document.body.removeChild(area);
-  }
-
-  if (copyFeedback){
-    copyFeedback.classList.remove('success','error');
-    if (copied){
-      copyFeedback.textContent = 'Resumen copiado al portapapeles.';
-      copyFeedback.classList.add('success');
-    } else {
-      copyFeedback.textContent = 'No se pudo copiar automáticamente. Copia manualmente desde el resumen.';
-      copyFeedback.classList.add('error');
-    }
-    clearTimeout(copyFeedback._timer);
-    copyFeedback._timer = setTimeout(()=>{
-      copyFeedback.textContent='';
-      copyFeedback.classList.remove('success','error');
-    }, 4000);
-  }
-}
-
 function handleReset(){
-  if (copyFeedback){
-    copyFeedback.textContent='';
-    copyFeedback.classList.remove('success','error');
-    clearTimeout(copyFeedback._timer);
-  }
   if (drugSel){
     drugSel.value = 'norepi';
   }
@@ -631,7 +511,6 @@ function handleReset(){
   .forEach(el=>{ el.addEventListener('input', recalc); el.addEventListener('change', recalc); });
 
 drugSel && drugSel.addEventListener('change', onDrugChange);
-copyBtn && copyBtn.addEventListener('click', handleCopyResumen);
 resetBtn && resetBtn.addEventListener('click', handleReset);
 
 // Inicializar

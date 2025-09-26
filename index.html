@@ -47,8 +47,11 @@
   table{border-collapse:collapse;width:100%;min-width:520px}
   th,td{padding:8px 12px;text-align:left;border-bottom:1px solid #e6edf5}
   tr.header th{background:#f1f6ff;color:#0d47a1;font-size:12px;text-transform:uppercase;letter-spacing:0.04em}
-  #resumen td.tag{width:45%;color:#304b63;font-weight:600}
-  #resumen tr:nth-child(even){background:#f9fbff}
+  .summary-card{display:flex;flex-direction:column;gap:12px}
+  .summary-list{display:grid;gap:8px;padding:12px;border:1px solid #e1e9f2;border-radius:12px;background:#f8fbff}
+  .summary-item{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#304b63}
+  .summary-item .value{color:#0b2239;font-weight:600;text-align:right}
+  @media(max-width:520px){.summary-item{flex-direction:column;align-items:flex-start}.summary-item .value{text-align:left}}
   #farmacos table{font-size:11px}
   #farmacos td,#farmacos th{padding:8px 10px}
   #farmacos tr:nth-child(even){background:#f9fbff}
@@ -58,7 +61,6 @@
   pre#testLog{background:#0b223910;color:#0b2239;padding:8px;border-radius:8px;overflow:auto}
     /* Ajustes solicitados */
     .result{font-size:40px;font-weight:800;margin:8px 0;color:var(--blue)}
-    #resumen table{font-size:12px}
     .tag{font-weight:700}
   #presets h3{font-size:12px;margin:8px 0}
   #presetButtons .btn{font-size:12px;padding:4px 8px}
@@ -157,25 +159,23 @@
             </div>
           </div>
         </div>
-        <div id="resumen">
-          <div class="table-wrapper">
-            <table>
-              <tr><td class="tag">Fármaco</td><td id="t_drug">—</td></tr>
-              <tr><td class="tag">Dosis objetivo</td><td id="t_dose">—</td></tr>
-              <tr><td class="tag">Peso</td><td id="t_weight">—</td></tr>
-              <tr><td class="tag">Concentración</td><td id="t_conc">—</td></tr>
-              <tr><td class="tag">mL/h</td><td id="t_mlh">—</td></tr>
-              <tr><td class="tag">mL / 24 h</td><td id="t_vol24">—</td></tr>
-              <tr><td class="tag">mg / 24 h</td><td id="t_mg24">—</td></tr>
-              <tr><td class="tag">Ampollas / 24 h</td><td id="t_vials24">—</td></tr>
-              <tr><td class="tag">Bolsas / 24 h</td><td id="t_bags24">—</td></tr>
-            </table>
+        <div id="resumen" class="summary-card">
+          <div class="summary-list" aria-live="polite">
+            <div class="summary-item"><span class="tag">Fármaco</span><span class="value" id="t_drug">—</span></div>
+            <div class="summary-item"><span class="tag">Dosis objetivo</span><span class="value" id="t_dose">—</span></div>
+            <div class="summary-item"><span class="tag">Peso</span><span class="value" id="t_weight">—</span></div>
+            <div class="summary-item"><span class="tag">Concentración</span><span class="value" id="t_conc">—</span></div>
+            <div class="summary-item"><span class="tag">mL/h</span><span class="value" id="t_mlh">—</span></div>
+            <div class="summary-item"><span class="tag">mL / 24 h</span><span class="value" id="t_vol24">—</span></div>
+            <div class="summary-item"><span class="tag">mg / 24 h</span><span class="value" id="t_mg24">—</span></div>
+            <div class="summary-item"><span class="tag">Ampollas / 24 h</span><span class="value" id="t_vials24">—</span></div>
+            <div class="summary-item"><span class="tag">Bolsas / 24 h</span><span class="value" id="t_bags24">—</span></div>
           </div>
           <div class="actions">
             <button type="button" class="btn btn-primary" id="copyResumen">Copiar resumen</button>
             <span id="copyFeedback" class="hint" aria-live="polite"></span>
           </div>
-          <div class="note" style="margin-top:8px">⚠️ Esta calculadora es una ayuda. Siempre confirma las dosis y preparaciones según protocolo local y doble verificación independiente.</div>
+          <div class="note" style="margin-top:8px">⚠️ Esta calculadora es una ayuda. Resultados listos para revisión; confirma las dosis y preparaciones según protocolo local con doble verificación independiente.</div>
         </div>
       </div>
     </section>
@@ -521,7 +521,7 @@ function recalc(){
       statusText = `Falta información: ${readable}`;
       statusClass = 'status status--warn';
     } else if (isFinite(ml_per_h) && hasAnyInput){
-      statusText = 'Resultados listos para revisión. Utiliza el resumen y valida con tu protocolo local.';
+      statusText = 'Resultados listos para revisión clínica.';
       statusClass = 'status status--ok';
     } else if (hasAnyInput){
       statusText = 'Completa los campos obligatorios para obtener un resultado.';
@@ -533,14 +533,21 @@ function recalc(){
 }
 
 function buildResumenText(){
-  const rows = Array.from(document.querySelectorAll('#resumen table tr'));
-  return rows.map(row=>{
-    const cells = Array.from(row.cells).map(c=>c.textContent.trim()).filter(Boolean);
-    if (!cells.length) return '';
-    if (row.classList.contains('header')) return `=== ${cells.join(' ')} ===`;
-    if (cells.length === 1) return cells[0];
-    return `${cells[0]}: ${cells.slice(1).join(' ')}`;
-  }).filter(Boolean).join('\n');
+  const fields = [
+    ['Fármaco', t_drug?.textContent?.trim() ?? ''],
+    ['Dosis objetivo', t_dose?.textContent?.trim() ?? ''],
+    ['Peso', t_weight?.textContent?.trim() ?? ''],
+    ['Concentración', t_conc?.textContent?.trim() ?? ''],
+    ['mL/h', t_mlh?.textContent?.trim() ?? ''],
+    ['mL / 24 h', t_vol24?.textContent?.trim() ?? ''],
+    ['mg / 24 h', t_mg24?.textContent?.trim() ?? ''],
+    ['Ampollas / 24 h', t_vials24?.textContent?.trim() ?? ''],
+    ['Bolsas / 24 h', t_bags24?.textContent?.trim() ?? ''],
+  ];
+  return fields
+    .filter(([,value]) => value && value !== '—')
+    .map(([label,value]) => `${label}: ${value}`)
+    .join('\n');
 }
 
 async function handleCopyResumen(){
@@ -585,7 +592,7 @@ async function handleCopyResumen(){
       copyFeedback.textContent = 'Resumen copiado al portapapeles.';
       copyFeedback.classList.add('success');
     } else {
-      copyFeedback.textContent = 'No se pudo copiar automáticamente. Copia manualmente desde la tabla.';
+      copyFeedback.textContent = 'No se pudo copiar automáticamente. Copia manualmente desde el resumen.';
       copyFeedback.classList.add('error');
     }
     clearTimeout(copyFeedback._timer);

@@ -32,6 +32,8 @@
   .hr{height:1px;background:#e6edf5;margin:8px 0}
   .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .note{font-size:10px;background:#f1f7ff;border:1px dashed #aac7ff;border-radius:8px;padding:8px}
+  .tiny-text{font-size:10px;display:block;color:inherit}
+  .range .tiny-text{font-size:10px;color:var(--muted);margin-top:4px}
   .btn{padding:6px 12px;border:1px solid #cfd9e3;border-radius:999px;background:#fff;cursor:pointer;font-size:13px;transition:background .2s,border-color .2s,transform .1s}
   .btn-sm{padding:4px 10px;font-size:12px}
   .btn:hover{background:#f1f7ff}
@@ -140,7 +142,7 @@
             </div>
             <div>
               <label>Fármacos necesarios (24 h)</label>
-              <div class="pill"><span id="vials24">—</span> ampollas/frasco</div>
+              <div class="pill"><span id="vials24">—</span> ampollas/frascos</div>
             </div>
           </div>
           <div class="row" style="margin-top:8px">
@@ -155,7 +157,7 @@
           </div>
         </div>
       </div>
-      <div class="note" style="margin-top:16px">⚠️ Esta calculadora es una ayuda. Siempre confirma las dosis y preparaciones según protocolo local y doble verificación independiente. Resultados listos para revisión; utiliza estos resultados y valida con tu protocolo local.</div>
+      <div class="note" style="margin-top:16px">⚠️ Esta calculadora es una ayuda. Siempre confirma las dosis y preparaciones según protocolo local y doble verificación independiente.</div>
     </section>
 
   <section class="card" id="farmacos" style="margin-top:16px">
@@ -167,7 +169,7 @@
         <tr><td>Adrenalina</td><td>1 mg/ampolla</td><td>0,03 – 1 mcg/kg/min</td><td>mcg/kg/min</td></tr>
         <tr><td>Dobutamina</td><td>250 mg/ampolla</td><td>2 – 10 mcg/kg/min</td><td>mcg/kg/min</td></tr>
         <tr><td>Dopamina</td><td>200 mg/ampolla</td><td>2 – 10 mcg/kg/min</td><td>mcg/kg/min</td></tr>
-        <tr><td>Nitroglicerina</td><td>50 mg/frasco</td><td>10 – 200 mcg/min (hasta 400 en crisis hipertensiva)</td><td>mcg/min</td></tr>
+        <tr><td>Nitroglicerina</td><td>50 mg/frasco</td><td>10 – 200 mcg/min <span class="tiny-text">Hasta 400 mcg/min en EPA hipertensivo fase aguda</span></td><td>mcg/min</td></tr>
         <tr><td>Propofol</td><td>1% 20 mL (≈10 mg/mL, 200 mg totales)</td><td>0,3 – 3 mg/kg/h</td><td>mg/kg/h</td></tr>
         <tr><td>Midazolam</td><td>50 mg/ampolla</td><td>0,02 – 0,1 mg/kg/h</td><td>mg/kg/h</td></tr>
         <tr><td>Fentanilo</td><td>0,5 mg/ampolla</td><td>1 – 3,6 mcg/kg/h</td><td>mcg/kg/h</td></tr>
@@ -194,11 +196,12 @@ const DRUGS = [
   { id:'epi', name:'Adrenalina', vialMg:1, baseUnits:['mcg/kg/min'], range:'0.03 – 1 mcg/kg/min', usesWeight:true },
   { id:'dobu', name:'Dobutamina', vialMg:250, baseUnits:['mcg/kg/min'], range:'2 – 10 mcg/kg/min', usesWeight:true },
   { id:'dopa', name:'Dopamina', vialMg:200, baseUnits:['mcg/kg/min'], range:'2 – 10 mcg/kg/min', usesWeight:true },
-  { id:'nitro', name:'Nitroglicerina', vialMg:50, baseUnits:['mcg/min'], range:'10 – 200 (hasta 400) mcg/min', usesWeight:false },
+  { id:'nitro', name:'Nitroglicerina', vialMg:50, baseUnits:['mcg/min'], range:'10 – 200 mcg/min <span class="tiny-text">Hasta 400 mcg/min en EPA hipertensivo fase aguda</span>', usesWeight:false },
   { id:'propofol', name:'Propofol', vialMg:200, baseUnits:['mg/kg/h'], range:'0.3 – 3 mg/kg/h', usesWeight:true },
   { id:'midaz', name:'Midazolam', vialMg:50, baseUnits:['mg/kg/h'], range:'0.02 – 0.1 mg/kg/h', usesWeight:true },
   { id:'fent', name:'Fentanilo', vialMg:0.5, baseUnits:['mcg/kg/h'], range:'1 – 3.6 mcg/kg/h', usesWeight:true },
   { id:'keta', name:'Ketamina', vialMg:500, baseUnits:['mg/kg/h'], range:'0.1 – 2 mg/kg/h', usesWeight:true },
+  { id:'custom', name:'Otra droga', vialMg:null, baseUnits:[], range:'Define manualmente según protocolo.', usesWeight:null, custom:true },
 ];
 
 const PRESETS = {
@@ -243,6 +246,8 @@ const UNIT_MAP = {
   'mcg/h':      { per:'h',   scale:'mcg', weight:false },
   'mg/h':       { per:'h',   scale:'mg',  weight:false },
 };
+
+const ALL_UNITS = Object.keys(UNIT_MAP);
 
 // Helper: formateo
 const fmt = (x, d=2) => {
@@ -299,12 +304,25 @@ DRUGS.forEach(d=>{
 function onDrugChange(){
   const drug = DRUGS.find(d=>d.id===drugSel.value);
   if(!drug) return;
-  rangeDiv.textContent = drug.range;
-  unitHelp.textContent = `Unidad base: ${drug.baseUnits.join(', ')}`;
+  const baseUnitsList = Array.isArray(drug.baseUnits) ? drug.baseUnits : [];
+  const sourceUnits = (drug.custom && baseUnitsList.length === 0) ? ALL_UNITS : baseUnitsList;
+  if (rangeDiv){
+    rangeDiv.innerHTML = drug.range || '—';
+  }
+  if (unitHelp){
+    if (drug.custom){
+      unitHelp.innerHTML = 'Selecciona la unidad adecuada para tu cálculo.';
+    } else if (sourceUnits.length){
+      unitHelp.innerHTML = `Unidad base: ${sourceUnits.join(', ')}`;
+    } else {
+      unitHelp.innerHTML = '';
+    }
+  }
 
   // Unidades permitidas + variantes lógicas
-  const allowed = new Set(drug.baseUnits);
-  drug.baseUnits.forEach(u=>{
+  const baseForVariants = sourceUnits.length ? sourceUnits : ALL_UNITS;
+  const allowed = new Set(baseForVariants);
+  baseForVariants.forEach(u=>{
     if(u==='mcg/kg/min'){allowed.add('mg/kg/min');allowed.add('mcg/kg/h');}
     if(u==='mcg/kg/h'){allowed.add('mg/kg/h');allowed.add('mcg/kg/min');}
     if(u==='mg/kg/h'){allowed.add('mcg/kg/h');}
@@ -319,12 +337,25 @@ function onDrugChange(){
   });
 
   // Precarga mg por ampolla/frasco
-  if (vialMgInp) vialMgInp.value = drug.vialMg;
+  if (vialMgInp){
+    if (drug.custom){
+      vialMgInp.value = '';
+      vialMgInp.placeholder = 'Define contenido por ampolla';
+    } else {
+      vialMgInp.value = (drug.vialMg != null ? drug.vialMg : '');
+      vialMgInp.placeholder = 'Se precarga según fármaco';
+    }
+  }
 
   // Peso deshabilitado si no aplica
   if (weightInp){
-    weightInp.disabled = !drug.usesWeight;
-    weightInp.placeholder = drug.usesWeight? 'ej. 70' : 'No requerido para este fármaco';
+    const disableWeight = drug.usesWeight === false;
+    weightInp.disabled = disableWeight;
+    if (drug.custom){
+      weightInp.placeholder = 'Define si aplica (kg)';
+    } else {
+      weightInp.placeholder = disableWeight ? 'No requerido para este fármaco' : 'ej. 70';
+    }
   }
 
   if (doseHint) doseHint.textContent = '';
@@ -368,8 +399,10 @@ function recalc(){
   const vialMgRaw = vialMgInp?.value ?? '';
   const hasAnyInput = [weightRaw, doseRaw, mixMgRaw, mixMlRaw].some(v=>v !== '');
   const issues = [];
+  const unitMeta = UNIT_MAP[doseUnit];
+  const requiresWeight = unitMeta?.weight === true;
 
-  if (drug?.usesWeight){
+  if (requiresWeight){
     if (weightRaw === ''){
       if (hasAnyInput) issues.push('ingresa el peso del paciente');
       markValidity(weightInp, true);
@@ -433,7 +466,7 @@ function recalc(){
   // Dosis -> mcg/min
   let dose_mcg_per_min = NaN;
   if (isFinite(doseVal)){
-    const meta = UNIT_MAP[doseUnit];
+    const meta = unitMeta;
     if (meta){
       let base = doseVal; // escala meta.scale en meta.per
       if (meta.weight){
